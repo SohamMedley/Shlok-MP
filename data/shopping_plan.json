@@ -1,0 +1,69 @@
+{
+    "budget": 100000,
+    "products": [
+        {
+            "name": "Dell Inspiron Laptop (Sample)",
+            "category": "Laptops",
+            "original_price": 55000,
+            "discount": 20,
+            "quantity": 1,
+            "priority": "High"
+        },
+        {
+            "name": "Galaxy Smartphone (Sample)",
+            "category": "Smartphones",
+            "original_price": 25000,
+            "discount": 15,
+            "quantity": 1,
+            "priority": "High"
+        },
+        {
+            "name": "Wireless Headphones (Sample)",
+            "category": "Electronics",
+            "original_price": 4000,
+            "discount": 30,
+            "quantity": 1,
+            "priority": "Medium"
+        },
+        {
+            "name": "Running Shoes (Sample)",
+            "category": "Fashion",
+            "original_price": 3500,
+            "discount": 25,
+            "quantity": 1,
+            "priority": "Medium"
+        },
+        {
+            "name": "Travel Backpack (Sample)",
+            "category": "Fashion",
+            "original_price": 2200,
+            "discount": 10,
+            "quantity": 1,
+            "priority": "Low"
+        },
+        {
+            "name": "Fitness Smartwatch (Sample)",
+            "category": "Electronics",
+            "original_price": 6000,
+            "discount": 35,
+            "quantity": 1,
+            "priority": "Medium"
+        },
+        {
+            "name": "Assorted Book Set (Sample)",
+            "category": "Books",
+            "original_price": 1500,
+            "discount": 5,
+            "quantity": 2,
+            "priority": "Low"
+        },
+        {
+            "name": "Stand Mixer (Sample)",
+            "category": "Home & Kitchen",
+            "original_price": 8000,
+            "discount": 18,
+            "quantity": 1,
+            "priority": "Medium"
+        }
+    ]
+}
