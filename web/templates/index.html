@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Festive Budget Planner &mdash; Shopping Budget Planner</title>
+  <meta name="description" content="Plan your festival sale shopping: set a budget, add products with expected discounts, track spending and export a summary.">
+  <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ============================ SIDEBAR ============================ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <span class="brand-icon" aria-hidden="true">&#128717;</span>
+      <span class="brand-text">
+        <strong>FESTIVE</strong>
+        <span>BUDGET</span>
+      </span>
+    </div>
+
+    <nav class="nav" aria-label="Main navigation">
+      <button class="nav-btn is-active" type="button" data-page="dashboard">
+        <span class="nav-icon" aria-hidden="true">&#8962;</span> Dashboard
+      </button>
+      <button class="nav-btn" type="button" data-page="shopping">
+        <span class="nav-icon" aria-hidden="true">&#128722;</span> Shopping List
+      </button>
+      <button class="nav-btn" type="button" data-page="analytics">
+        <span class="nav-icon" aria-hidden="true">&#9636;</span> Analytics
+      </button>
+      <button class="nav-btn" type="button" data-page="summary">
+        <span class="nav-icon" aria-hidden="true">&#9636;</span> Final Summary
+      </button>
+    </nav>
+
+    <div class="sidebar-spacer"></div>
+
+    <div class="quick-actions">
+      <p class="quick-title">QUICK ACTIONS</p>
+      <button class="quick-btn" type="button" data-action="add-product">&#65291;&nbsp; Add Product</button>
+      <button class="quick-btn" type="button" data-action="save-plan">&#8613;&nbsp; Save Plan</button>
+      <button class="quick-btn" type="button" data-action="load-plan">&#8615;&nbsp; Load Plan</button>
+      <button class="quick-btn" type="button" data-action="bank-calculator">&#37;&nbsp; Bank Offer Calculator</button>
+    </div>
+
+    <p class="sidebar-foot">Student Project<br>Offline planning tool</p>
+  </aside>
+
+  <!-- ============================= MAIN ============================== -->
+  <div class="main">
+
+    <header class="topbar">
+      <button class="hamburger" type="button" id="hamburger" aria-label="Toggle navigation">&#9776;</button>
+      <div class="topbar-left">
+        <h1 id="topTitle">Dashboard</h1>
+        <p id="topSubtitle">Your complete shopping budget overview.</p>
+      </div>
+      <div class="topbar-right">
+        <span class="budget-pill" id="headerBudget">Budget &bull; Rs 0.00</span>
+      </div>
+    </header>
+
+    <main class="page-container">
+
+      <!-- ------------------------- DASHBOARD ------------------------- -->
+      <section class="page is-active" id="page-dashboard">
+
+        <div class="card budget-card">
+          <div class="budget-card-left">
+            <p class="eyebrow">SHOPPING BUDGET</p>
+            <form class="budget-form" id="budgetForm" autocomplete="off">
+              <input type="text" id="budgetInput" class="input" inputmode="decimal"
+                     placeholder="e.g. 100000" aria-label="Total shopping budget">
+              <button type="submit" class="btn btn-primary">Set Budget</button>
+              <button type="button" class="btn btn-secondary" id="resetBudgetBtn">Reset</button>
+            </form>
+          </div>
+          <p class="budget-card-hint">Set your spending limit first, then build your shopping list.</p>
+        </div>
+
+        <div class="stat-grid">
+          <div class="card stat-card" style="--stat-color: var(--accent)">
+            <p class="stat-title">Total Budget</p>
+            <p class="stat-value" id="cardBudget">Rs 0.00</p>
+            <p class="stat-sub">Your spending limit</p>
+          </div>
+          <div class="card stat-card" style="--stat-color: var(--blue)">
+            <p class="stat-title">Planned Spending</p>
+            <p class="stat-value" id="cardPlanned">Rs 0.00</p>
+            <p class="stat-sub">Expected sale cost</p>
+          </div>
+          <div class="card stat-card" style="--stat-color: var(--green)">
+            <p class="stat-title">Remaining</p>
+            <p class="stat-value" id="cardRemaining">Rs 0.00</p>
+            <p class="stat-sub">Available to spend</p>
+          </div>
+          <div class="card stat-card" style="--stat-color: var(--purple)">
+            <p class="stat-title">Savings</p>
+            <p class="stat-value" id="cardSavings">Rs 0.00</p>
+            <p class="stat-sub">Expected discount savings</p>
+          </div>
+        </div>
+
+        <div class="split-grid">
+          <div class="card panel">
+            <div class="section-header">
+              <h2>Budget Health</h2>
+              <p>Live spending utilization</p>
+            </div>
+            <div class="panel-body">
+              <div class="health-row">
+                <span class="badge badge-safe" id="statusBadge">SAFE</span>
+                <span class="usage" id="usageLabel">0.0% used</span>
+              </div>
+              <div class="progress" id="progressTrack">
+                <div class="progress-fill fill-green" id="progressFill" style="width:0%"></div>
+              </div>
+              <p class="health-text" id="budgetHealthText">Set a budget to begin.</p>
+              <p class="over-budget-text" id="overBudgetLabel"></p>
+            </div>
+          </div>
+
+          <div class="card panel">
+            <div class="section-header">
+              <h2>Smart Insights</h2>
+              <p>Rule-based recommendations</p>
+            </div>
+            <div class="panel-body rec-list" id="recommendations"></div>
+          </div>
+        </div>
+
+        <div class="split-grid">
+          <div class="card panel">
+            <div class="section-header"><h2>Priority Breakdown</h2></div>
+            <div class="panel-body" id="priorityPanel"></div>
+          </div>
+
+          <div class="card panel">
+            <div class="section-header"><h2>Festival Planning Tips</h2></div>
+            <div class="panel-body">
+              <ul class="tips">
+                <li>Compare prices before the sale begins.</li>
+                <li>Keep a firm spending limit.</li>
+                <li>Prioritize essentials over impulse purchases.</li>
+                <li>Review low-priority items when near the limit.</li>
+              </ul>
+              <p class="tips-foot">Offline project &bull; prices and discounts are illustrative.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ------------------------ SHOPPING LIST ---------------------- -->
+      <section class="page" id="page-shopping">
+
+        <div class="card toolbar">
+          <div class="search-group">
+            <span class="search-icon" aria-hidden="true">&#128269;</span>
+            <input type="search" id="searchInput" class="input input-plain"
+                   placeholder="Search products..." aria-label="Search products">
+          </div>
+
+          <label class="field-inline">
+            <span>Category</span>
+            <select id="categoryFilter" class="input select"></select>
+          </label>
+
+          <label class="field-inline">
+            <span>Sort</span>
+            <select id="sortBy" class="input select">
+              {%- for option in sort_options %}
+              <option value="{{ option }}">{{ option }}</option>
+              {%- endfor %}
+            </select>
+          </label>
+
+          <button class="btn btn-secondary" type="button" id="sortDirBtn"
+                  title="Toggle ascending / descending">Asc &#8593;</button>
+
+          <div class="toolbar-spacer"></div>
+
+          <button class="btn btn-primary" type="button" data-action="add-product">&#65291; Add Product</button>
+        </div>
+
+        <div class="card table-card">
+          <div class="table-header">
+            <h2>Planned Purchases <span class="muted" id="tableCount">0 items</span></h2>
+            <div class="table-actions">
+              <button class="btn btn-secondary" type="button" id="editSelectedBtn">Edit</button>
+              <button class="btn btn-danger" type="button" id="deleteSelectedBtn">Delete</button>
+              <button class="btn btn-danger" type="button" id="clearAllBtn">Clear All</button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="grid" id="productTable">
+              <thead>
+                <tr>
+                  <th class="sortable" data-sort="Product Name" data-label="Product">Product</th>
+                  <th class="sortable" data-sort="Category" data-label="Category">Category</th>
+                  <th class="sortable num" data-sort="Price" data-label="Original Price">Original Price</th>
+                  <th class="sortable num" data-sort="Discount" data-label="Discount">Discount</th>
+                  <th class="num">Sale Price</th>
+                  <th class="num">Qty</th>
+                  <th class="num">Total Cost</th>
+                  <th class="sortable" data-sort="Priority" data-label="Priority">Priority</th>
+                </tr>
+              </thead>
+              <tbody id="productTableBody"></tbody>
+            </table>
+            <p class="empty-state" id="tableEmpty" hidden>
+              No products match your filters yet. Add a product, or load the sample plan.
+            </p>
+          </div>
+        </div>
+
+        <div class="card totals-bar">
+          <div class="metric">
+            <p class="eyebrow">ORIGINAL</p>
+            <p class="metric-value" id="tableOriginal" style="color:var(--text)">Rs 0.00</p>
+          </div>
+          <div class="metric">
+            <p class="eyebrow">PLANNED COST</p>
+            <p class="metric-value" id="tableSale" style="color:var(--blue)">Rs 0.00</p>
+          </div>
+          <div class="metric">
+            <p class="eyebrow">SAVINGS</p>
+            <p class="metric-value" id="tableSavings" style="color:var(--green)">Rs 0.00</p>
+          </div>
+          <div class="totals-actions">
+            <button class="btn btn-secondary" type="button" data-action="load-sample">Load Sample Data</button>
+            <button class="btn btn-secondary" type="button" data-action="save-plan">Save Plan</button>
+            <button class="btn btn-primary" type="button" data-action="export-csv">Export CSV</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- --------------------------- ANALYTICS ----------------------- -->
+      <section class="page" id="page-analytics">
+
+        <div class="stat-grid stat-grid-3">
+          <div class="card stat-card" style="--stat-color: var(--accent)">
+            <p class="stat-title">Products</p>
+            <p class="stat-value" id="analyticsCount">0</p>
+            <p class="stat-sub">Planned purchases</p>
+          </div>
+          <div class="card stat-card" style="--stat-color: var(--blue)">
+            <p class="stat-title">Categories</p>
+            <p class="stat-value" id="analyticsCategories">0</p>
+            <p class="stat-sub">Distinct shopping categories</p>
+          </div>
+          <div class="card stat-card" style="--stat-color: var(--green)">
+            <p class="stat-title">Savings Rate</p>
+            <p class="stat-value" id="analyticsSavingsRate">0.0%</p>
+            <p class="stat-sub">Share of the original price saved</p>
+          </div>
+        </div>
+
+        <div class="chart-grid">
+          {%- for kind in chart_kinds %}
+          <figure class="card chart-card">
+            <div class="chart-head">
+              <figcaption>{{ {'category': 'Spending by Category',
+                              'budget': 'Budget vs Planned Spending',
+                              'price': 'Original vs Sale Price',
+                              'priority': 'Priority Spending'}[kind] }}</figcaption>
+              <span class="chart-tag">Matplotlib</span>
+            </div>
+            <div class="chart-body">
+              <div class="chart-skeleton" data-skeleton="{{ kind }}"></div>
+              <img class="chart-img" data-chart="{{ kind }}" alt="{{ kind }} chart" hidden>
+            </div>
+          </figure>
+          {%- endfor %}
+        </div>
+      </section>
+
+      <!-- ---------------------------- SUMMARY ------------------------ -->
+      <section class="page" id="page-summary">
+
+        <div class="card summary-head no-print">
+          <h2 class="report-title">Shopping Plan Report</h2>
+          <p class="muted">A final snapshot of your budget, purchases, savings and recommendations.</p>
+        </div>
+
+        <div class="summary-cards">
+          <div class="card mini-card"><p class="eyebrow">BUDGET</p><p class="mini-value" id="sumBudget" style="color:var(--accent)">Rs 0.00</p></div>
+          <div class="card mini-card"><p class="eyebrow">ORIGINAL COST</p><p class="mini-value" id="sumOriginal" style="color:var(--text)">Rs 0.00</p></div>
+          <div class="card mini-card"><p class="eyebrow">SALE COST</p><p class="mini-value" id="sumPlanned" style="color:var(--blue)">Rs 0.00</p></div>
+          <div class="card mini-card"><p class="eyebrow">SAVINGS</p><p class="mini-value" id="sumSavings" style="color:var(--green)">Rs 0.00</p></div>
+          <div class="card mini-card"><p class="eyebrow">REMAINING</p><p class="mini-value" id="sumRemaining" style="color:var(--purple)">Rs 0.00</p></div>
+        </div>
+
+        <div class="summary-grid">
+          <div class="card panel">
+            <div class="section-header"><h2>Plan Details</h2></div>
+            <pre class="report" id="summaryDetails"></pre>
+          </div>
+
+          <div class="card panel">
+            <div class="section-header"><h2>Plan Status</h2></div>
+            <div class="panel-body">
+              <span class="badge badge-safe" id="summaryStatusBadge">SAFE</span>
+              <p class="counts" id="summaryItemCounts"></p>
+              <p class="eyebrow">RECOMMENDATIONS</p>
+              <ul class="rec-plain" id="summaryRecommendations"></ul>
+              <div class="summary-actions no-print">
+                <button class="btn btn-secondary" type="button" data-action="save-plan">Save Plan</button>
+                <button class="btn btn-primary" type="button" data-action="export-csv">Export CSV</button>
+                <button class="btn btn-secondary" type="button" id="printBtn">Print</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- --------------------------- STATUS BAR ------------------------ -->
+    <footer class="status-bar">
+      <span id="statusLabel">&#9679; Ready</span>
+      <span class="status-right">
+        <span id="storageLabel">Saved locally</span>
+        &bull;
+        <span id="productCountLabel">0 products</span>
+      </span>
+    </footer>
+  </div>
+</div>
+
+<!-- ======================= ADD / EDIT PRODUCT MODAL =================== -->
+<div class="modal-backdrop" id="productModal" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="productModalTitle">
+    <div class="modal-header">
+      <h3 id="productModalTitle">ADD PRODUCT</h3>
+      <p>Enter the details for your planned purchase.</p>
+      <button class="modal-close" type="button" data-close="productModal" aria-label="Close">&times;</button>
+    </div>
+    <form class="modal-body" id="productForm" autocomplete="off">
+      <h4>Product Details</h4>
+
+      <label class="field">
+        <span>Product Name</span>
+        <input type="text" id="fName" class="input" maxlength="80">
+      </label>
+
+      <label class="field">
+        <span>Original Price (Rs)</span>
+        <input type="text" id="fPrice" class="input" inputmode="decimal">
+      </label>
+
+      <label class="field">
+        <span>Expected Discount (%)</span>
+        <input type="text" id="fDiscount" class="input" inputmode="decimal" value="0">
+      </label>
+
+      <label class="field">
+        <span>Quantity</span>
+        <input type="text" id="fQuantity" class="input" inputmode="numeric" value="1">
+      </label>
+
+      <label class="field">
+        <span>Category</span>
+        <select id="fCategory" class="input select">
+          {%- for category in categories %}
+          <option value="{{ category }}">{{ category }}</option>
+          {%- endfor %}
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Priority</span>
+        <select id="fPriority" class="input select">
+          {%- for priority in priorities %}
+          <option value="{{ priority }}" {{ 'selected' if priority == 'Medium' }}>{{ priority }}</option>
+          {%- endfor %}
+        </select>
+      </label>
+
+      <p class="form-preview" id="formPreview"></p>
+      <p class="form-error" id="formError" hidden></p>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" data-close="productModal">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="productSubmitBtn">Add Product</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===================== BANK / COUPON CALCULATOR MODAL ================ -->
+<div class="modal-backdrop" id="bankModal" hidden>
+  <div class="modal modal-sm" role="dialog" aria-modal="true" aria-labelledby="bankModalTitle">
+    <div class="modal-header">
+      <h3 id="bankModalTitle">BANK / COUPON CALCULATOR</h3>
+      <p>Estimate your final payable price.</p>
+      <button class="modal-close" type="button" data-close="bankModal" aria-label="Close">&times;</button>
+    </div>
+    <form class="modal-body" id="bankForm" autocomplete="off">
+      <label class="field"><span>Subtotal (Rs)</span><input type="text" id="bSubtotal" class="input" inputmode="decimal"></label>
+      <label class="field"><span>Bank Discount (%)</span><input type="text" id="bBankPct" class="input" inputmode="decimal" value="10"></label>
+      <label class="field"><span>Maximum Bank Discount (Rs)</span><input type="text" id="bMaxDiscount" class="input" inputmode="decimal" value="1500"></label>
+      <label class="field"><span>Coupon Discount (Rs)</span><input type="text" id="bCoupon" class="input" inputmode="decimal" value="0"></label>
+
+      <p class="bank-result" id="bankResult" hidden></p>
+      <p class="form-error" id="bankError" hidden></p>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" data-close="bankModal">Close</button>
+        <button type="submit" class="btn btn-primary">Calculate Final Price</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============================ CONFIRM MODAL ========================= -->
+<div class="modal-backdrop" id="confirmModal" hidden>
+  <div class="modal modal-sm" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <div class="modal-body modal-body-plain">
+      <h3 id="confirmTitle">Are you sure?</h3>
+      <p class="muted" id="confirmMessage"></p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" data-close="confirmModal">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmOkBtn">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="fileInput" accept=".json,application/json" hidden>
+<div class="toast" id="toast" hidden></div>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

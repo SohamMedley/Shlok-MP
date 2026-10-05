@@ -1,0 +1,55 @@
+# =============================================================================
+# Render Blueprint — Festive Budget Planner
+# -----------------------------------------------------------------------------
+# Docs: https://render.com/docs/blueprint-spec
+#
+# This file provisions the *web* edition of the project (Flask + the original
+# Python logic modules). The Tkinter desktop app (main.py / gui.py) stays in the
+# repo untouched for local use; a desktop GUI cannot be served by Render, so
+# web/app.py exposes the same functionality over HTTP.
+#
+# Deploy: Render dashboard -> New -> Blueprint -> pick this repository and the
+# branch that contains this file -> Apply. Nothing else to configure: the
+# service is stateless, needs no database and no secret environment variables.
+#
+# Cost: `plan: free` (512 MB / 0.1 CPU). Free web services spin down after ~15
+# minutes without traffic and the first request afterwards takes ~30s to wake.
+# Change `plan` to `starter` for an always-on instance.
+# =============================================================================
+
+services:
+  - type: web
+    name: festive-budget-planner
+    runtime: python
+    plan: free
+    region: singapore            # closest Render region to India
+
+    # `branch` is intentionally omitted so the service always builds from the
+    # branch this Blueprint instance is linked to (works from `main` or any
+    # feature branch you select in the dashboard).
+
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+
+    # One worker keeps memory low on the 512 MB free instance; threads absorb
+    # concurrent chart/export requests. --bind 0.0.0.0:$PORT is required:
+    # Render injects PORT and fails the deploy if the app binds anywhere else.
+    startCommand: "gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 8 --timeout 120 --access-logfile - --error-logfile - web.app:app"
+
+    healthCheckPath: /healthz
+
+    envVars:
+      # Headless Matplotlib: never look for a display / GUI backend.
+      - key: MPLBACKEND
+        value: Agg
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: PYTHONDONTWRITEBYTECODE
+        value: "1"
+      # Keeps Matplotlib's font/cache writes inside a writable directory
+      # (Render's filesystem is read-only outside the service's work dir).
+      - key: MPLCONFIGDIR
+        value: /tmp/matplotlib
+      - key: FLASK_ENV
+        value: production
+      - key: WEB_CONCURRENCY
+        value: "1"

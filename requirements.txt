@@ -1,1 +1,23 @@
+# =============================================================================
+# Festive Budget Planner — Python dependencies
+# -----------------------------------------------------------------------------
+# Shared by both editions of the app:
+#
+#   * Desktop edition  (python main.py)     -> needs matplotlib only
+#   * Web edition      (python run_web.py)  -> needs matplotlib + flask
+#
+# gunicorn is the production WSGI server used by Render (see render.yaml).
+# The platform marker means it is skipped on Windows, where it cannot run --
+# use `python run_web.py` for local development there instead.
+#
+# Install everything with:  pip install -r requirements.txt
+# =============================================================================
+
+# Charts for the Analytics tab (desktop app + server-rendered PNGs for the web app)
 matplotlib>=3.5.0
+
+# Web edition
+flask>=3.0.0
+
+# Production server for Render / any POSIX WSGI host (deploy only)
+gunicorn>=21.2.0; sys_platform != "win32"
